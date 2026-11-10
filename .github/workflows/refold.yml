@@ -1,0 +1,43 @@
+name: Refold Profile Assets
+
+on:
+  schedule:
+    # Run every morning at 06:00 UTC
+    - cron: "0 6 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  refold:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Update GitHub stats & refold SVG cards
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npm run refold
+
+      - name: Commit & push if assets updated
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/stats.json assets/*.svg
+          if git diff --staged --quiet; then
+            echo "No changes in folded assets."
+          else
+            git commit -m "chore(assets): refold origami profile cards [skip ci]"
+            git push
+          fi

@@ -1,0 +1,39 @@
+{
+  "updated": "2026-11-10T06:19:35.343Z",
+  "repos": 9,
+  "stars": 0,
+  "followers": 0,
+  "since": 2023,
+  "languageCount": 9,
+  "contributions": null,
+  "languages": [
+    {
+      "name": "TypeScript",
+      "share": 0.5877527854479571
+    },
+    {
+      "name": "JavaScript",
+      "share": 0.11618858386968556
+    },
+    {
+      "name": "Swift",
+      "share": 0.08929020876590317
+    },
+    {
+      "name": "Java",
+      "share": 0.08411335350833721
+    },
+    {
+      "name": "Python",
+      "share": 0.05678861678663627
+    },
+    {
+      "name": "HTML",
+      "share": 0.045263099502257195
+    },
+    {
+      "name": "Other",
+      "share": 0.020603352119223546
+    }
+  ]
+}

@@ -1,0 +1,26 @@
+{
+  "name": "gitprofile",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "tsx scripts/build.ts",
+    "stats": "tsx scripts/stats.ts",
+    "preview": "tsx scripts/preview.ts",
+    "refold": "tsx scripts/stats.ts && tsx scripts/build.ts"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "@resvg/resvg-js": "^2.6.2",
+    "@types/node": "^26.6.6",
+    "@types/three": "^0.187.0",
+    "opentype.js": "^2.0.0",
+    "subset-font": "^2.9.0",
+    "three": "^0.187.0",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2"
+  }
+}
