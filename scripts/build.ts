@@ -14,6 +14,7 @@ import {
   fibers,
   ground,
   groundBorder,
+  GroundEdges,
   hanko,
   paragraph,
   sheet,
@@ -66,20 +67,20 @@ function fadeIn(inner: string, delay: number, dur = 0.8): string {
 /* ================================================================== */
 async function hero(P: Palette): Promise<string> {
   const doc = new Doc(P, `hero-${P.mode}`);
-  const H = 380;
+  const H = 310;
   const cw = 480;
   const ch = 214;
   const cx = (W - cw) / 2;
-  const cy = (H - ch) / 2 - 4;
+  const cy = 62;
 
   const back = fold(P, [
-    { model: "crane", x: 150, y: 168, size: 250, depth: 1, dur: 46, tiltX: 0.42, phase: 0.6, frames: 24 },
-    { model: "luckyStar", x: 790, y: 92, size: 128, depth: 0.85, dur: 34, dir: -1, tiltX: 0.9, phase: 1.1 },
-    { model: "sonobe", x: 810, y: 292, size: 118, depth: 0.8, dur: 40, tiltX: 0.6, phase: 0.3, bobDelay: 1.2 },
-    { model: "shuriken", x: 62, y: 330, size: 74, depth: 0.6, dur: 22, tiltX: 0.8, frames: 16, bobDelay: 2.1 },
-    { model: "kusudama", x: 318, y: 46, size: 60, depth: 0.55, dur: 30, frames: 16, bobDelay: 0.7 },
-    { model: "lotus", x: 618, y: 340, size: 92, depth: 0.65, dur: 38, tiltX: 0.55, frames: 16, bobDelay: 3 },
-    { model: "pinwheel", x: 575, y: 46, size: 58, depth: 0.5, dur: 18, axis: "z", tiltX: 0.25, frames: 16, bobDelay: 1.6 },
+    { model: "crane", x: 150, y: 150, size: 240, depth: 1, dur: 46, tiltX: 0.42, phase: 0.6, frames: 24 },
+    { model: "luckyStar", x: 790, y: 82, size: 124, depth: 0.85, dur: 34, dir: -1, tiltX: 0.9, phase: 1.1 },
+    { model: "sonobe", x: 810, y: 242, size: 112, depth: 0.8, dur: 40, tiltX: 0.6, phase: 0.3, bobDelay: 1.2 },
+    { model: "shuriken", x: 62, y: 270, size: 70, depth: 0.6, dur: 22, tiltX: 0.8, frames: 16, bobDelay: 2.1 },
+    { model: "kusudama", x: 318, y: 42, size: 58, depth: 0.55, dur: 30, frames: 16, bobDelay: 0.7 },
+    { model: "lotus", x: 625, y: 276, size: 84, depth: 0.65, dur: 38, tiltX: 0.55, frames: 16, bobDelay: 3 },
+    { model: "pinwheel", x: 575, y: 42, size: 56, depth: 0.5, dur: 18, axis: "z", tiltX: 0.25, frames: 16, bobDelay: 1.6 },
   ]);
 
   // The name, in Kubos Origami, rising from its baseline.
@@ -101,14 +102,13 @@ async function hero(P: Palette): Promise<string> {
   });
 
   const body = [
-    ground(doc, W, H, 11),
+    ground(doc, W, H, 11, 6, "top"),
     back,
     sheet(doc, cx, cy, cw, ch, 21, { opacity: P.mode === "dark" ? 0.8 : 0.84 }),
     nameSvg,
     fadeIn(lead.svg, 0.7),
     fadeIn(hanko(doc, cx + cw - 36, cy + 36, 40, -8), 1.1, 0.5),
-    text(doc, "hikaruun.com", W - 22, H - 18, { size: 12.5, color: P.muted, anchor: "end", weight: 500 }),
-    groundBorder(doc, W, H),
+    groundBorder(doc, W, H, 6, "top"),
   ].join("");
 
   return svgDoc(W, H, `<defs>${doc.defs.join("")}</defs>${body}`, {
@@ -124,7 +124,7 @@ async function about(P: Palette): Promise<string> {
   const doc = new Doc(P, `about-${P.mode}`);
   const pad = 26;
   const sx = pad;
-  const sy = 82;
+  const sy = 68;
   const sw = W - pad * 2;
   const ip = 30; // inner padding
 
@@ -169,25 +169,25 @@ async function about(P: Palette): Promise<string> {
   }
 
   const sh = Math.max(railBottom, colBottom) - sy + ip - 18;
-  const H = sy + sh + pad;
+  const H = sy + sh + 16;
 
   const back = fold(P, [
-    { model: "crane", x: 760, y: 52, size: 150, depth: 0.85, dur: 40, tiltX: 0.5, dir: -1, phase: 2.2, frames: 20 },
-    { model: "butterfly", x: 520, y: 40, size: 70, depth: 0.55, dur: 26, tiltX: 0.9, frames: 16, bobDelay: 1 },
-    { model: "kabuto", x: 110, y: H - 36, size: 120, depth: 0.7, dur: 36, tiltX: 0.4, frames: 16, bobDelay: 2 },
+    { model: "crane", x: 760, y: 42, size: 150, depth: 0.85, dur: 40, tiltX: 0.5, dir: -1, phase: 2.2, frames: 20 },
+    { model: "butterfly", x: 520, y: 34, size: 70, depth: 0.55, dur: 26, tiltX: 0.9, frames: 16, bobDelay: 1 },
+    { model: "kabuto", x: 110, y: H - 30, size: 120, depth: 0.7, dur: 36, tiltX: 0.4, frames: 16, bobDelay: 2 },
   ]);
 
   const body = [
-    ground(doc, W, H, 31),
+    ground(doc, W, H, 31, 6, "middle"),
     back,
-    heading(doc, ABOUT.title, pad + 4, 52),
+    heading(doc, ABOUT.title, pad + 4, 42),
     sheet(doc, sx, sy, sw, sh, 41),
     facts,
     `<line x1="${n(tx - 17)}" y1="${n(sy + ip)}" x2="${n(tx - 17)}" y2="${n(sy + sh - ip)}" stroke="${P.paperEdge}" stroke-opacity="${P.paperEdgeOpacity}" stroke-dasharray="2.5 3.5"/>`,
     drop,
     leadRes.svg,
     colSvg,
-    groundBorder(doc, W, H),
+    groundBorder(doc, W, H, 6, "middle"),
   ].join("");
 
   return svgDoc(W, H, `<defs>${doc.defs.join("")}</defs>${body}`, {
@@ -203,23 +203,21 @@ async function experience(P: Palette): Promise<string> {
   const doc = new Doc(P, `exp-${P.mode}`);
   const pad = 26;
   const sx = pad;
-  const sy = 76;
+  const sy = 64;
   const sw = W - pad * 2;
   const ip = 30;
-  const whenX = sx + ip;
-  const whoX = whenX + 140;
-  const whoW = 214;
-  const whatX = whoX + whoW + 26;
+  const whoX = sx + ip;
+  const whoW = 240;
+  const whatX = whoX + whoW + 28;
   const whatW = sx + sw - ip - whatX;
 
   let y = sy + ip + 16;
   let rows = "";
   EXPERIENCE.roles.forEach((r, i) => {
     if (i > 0) {
-      rows += crease(doc, whenX, y - 20, sx + sw - ip);
+      rows += crease(doc, whoX, y - 20, sx + sw - ip);
       y += 6;
     }
-    rows += text(doc, r.when, whenX, y + 2, { size: 12.5, color: P.muted });
     const role = paragraph(doc, [{ text: r.role }], whoX, y + 2, whoW, {
       size: 17,
       weight: 600,
@@ -245,25 +243,25 @@ async function experience(P: Palette): Promise<string> {
     y += rowH + 30;
   });
   const sh = y - sy + ip - 44;
-  const H = sy + sh + pad;
+  const H = sy + sh + 16;
 
   const back = fold(P, [
-    { model: "plane", x: 700, y: 40, size: 110, depth: 0.85, dur: 30, tiltX: 0.5, phase: 0.8, frames: 20 },
-    { model: "swallow", x: 470, y: 36, size: 64, depth: 0.55, dur: 28, tiltX: 0.7, dir: -1, frames: 16, bobDelay: 1.4 },
-    { model: "boat", x: 830, y: H - 34, size: 110, depth: 0.75, dur: 34, tiltX: 0.25, frames: 16, bobDelay: 0.6 },
+    { model: "plane", x: 700, y: 34, size: 110, depth: 0.85, dur: 30, tiltX: 0.5, phase: 0.8, frames: 20 },
+    { model: "swallow", x: 470, y: 30, size: 64, depth: 0.55, dur: 28, tiltX: 0.7, dir: -1, frames: 16, bobDelay: 1.4 },
+    { model: "boat", x: 830, y: H - 28, size: 110, depth: 0.75, dur: 34, tiltX: 0.25, frames: 16, bobDelay: 0.6 },
   ]);
 
   const body = [
-    ground(doc, W, H, 51),
+    ground(doc, W, H, 51, 6, "middle"),
     back,
-    heading(doc, EXPERIENCE.title, pad + 4, 52),
+    heading(doc, EXPERIENCE.title, pad + 4, 42),
     sheet(doc, sx, sy, sw, sh, 61),
     rows,
-    groundBorder(doc, W, H),
+    groundBorder(doc, W, H, 6, "middle"),
   ].join("");
 
   return svgDoc(W, H, `<defs>${doc.defs.join("")}</defs>${body}`, {
-    title: `${EXPERIENCE.title}: ` + EXPERIENCE.roles.map((r) => `${r.role}, ${r.org} (${r.when})`).join("; "),
+    title: `${EXPERIENCE.title}: ` + EXPERIENCE.roles.map((r) => `${r.role}, ${r.org}`).join("; "),
     style: await doc.style(),
   });
 }
@@ -275,7 +273,7 @@ async function project(P: Palette): Promise<string> {
   const doc = new Doc(P, `proj-${P.mode}`);
   const pad = 26;
   const sx = pad;
-  const sy = 76;
+  const sy = 64;
   const sw = W - pad * 2;
   const ip = 32;
   const x = sx + ip;
@@ -311,17 +309,17 @@ async function project(P: Palette): Promise<string> {
   y += tags.height;
 
   const sh = y - sy + ip;
-  const H = sy + sh + pad;
+  const H = sy + sh + 12;
 
   const body = [
-    ground(doc, W, H, 71),
-    heading(doc, PROJECT.title, pad + 4, 52),
-    fold(P, [{ model: "goldfish", x: 610, y: 38, size: 70, depth: 0.55, dur: 30, tiltX: 0.6, dir: -1, frames: 16, bobDelay: 1.1 }]),
+    ground(doc, W, H, 71, 6, "middle"),
+    heading(doc, PROJECT.title, pad + 4, 42),
+    fold(P, [{ model: "goldfish", x: 610, y: 32, size: 70, depth: 0.55, dur: 30, tiltX: 0.6, dir: -1, frames: 16, bobDelay: 1.1 }]),
     sheet(doc, sx, sy, sw, sh, 81, { opacity: P.mode === "dark" ? 0.78 : 0.82 }),
     // the lantern sits *on* the sheet's right margin, glowing through the paper
     fold(P, [{ model: "lantern", x: sx + sw - 100, y: sy + sh / 2 - 4, size: 180, depth: 1, dur: 44, tiltX: 0.32, frames: 20 }]),
     svg,
-    groundBorder(doc, W, H),
+    groundBorder(doc, W, H, 6, "middle"),
   ].join("");
 
   return svgDoc(W, H, `<defs>${doc.defs.join("")}</defs>${body}`, {
@@ -336,7 +334,7 @@ async function project(P: Palette): Promise<string> {
 async function stats(P: Palette, s: Stats): Promise<string> {
   const doc = new Doc(P, `stats-${P.mode}`);
   const pad = 26;
-  const top = 92;
+  const top = 80;
 
   // four paper tiles
   const tiles: [string, string][] = [
@@ -399,21 +397,21 @@ async function stats(P: Palette, s: Stats): Promise<string> {
   const tk = tagRow(doc, TOOLKIT, bandX, ly + 32, bandW, 12, 6);
   strip += tk.svg;
   const sh = ly + 32 + tk.height + ip - sy;
-  const H = sy + sh + pad;
+  const H = sy + sh + 16;
 
   const updated = new Date(s.updated).toISOString().slice(0, 10);
   const body = [
-    ground(doc, W, H, 101),
+    ground(doc, W, H, 101, 6, "middle"),
     fold(P, [
-      { model: "masu", x: 760, y: 44, size: 84, depth: 0.7, dur: 30, tiltX: 0.6, frames: 16 },
-      { model: "cicada", x: 560, y: 40, size: 58, depth: 0.5, dur: 26, tiltX: 0.8, frames: 16, dir: -1, bobDelay: 1.2 },
+      { model: "masu", x: 760, y: 38, size: 84, depth: 0.7, dur: 30, tiltX: 0.6, frames: 16 },
+      { model: "cicada", x: 560, y: 34, size: 58, depth: 0.5, dur: 26, tiltX: 0.8, frames: 16, dir: -1, bobDelay: 1.2 },
     ]),
-    heading(doc, "the paper trail", pad + 4, 46, `live from github · refolded ${updated}`),
+    heading(doc, "the paper trail", pad + 4, 38, `live from github · refolded ${updated}`),
     svg,
     sheet(doc, pad, sy, sw, sh, 111),
     fold(P, [{ model: "wreath", x: pad + sw - 64, y: sy + 44, size: 70, depth: 0.7, dur: 30, axis: "z", tiltX: 0.4, frames: 16 }]),
     strip,
-    groundBorder(doc, W, H),
+    groundBorder(doc, W, H, 6, "middle"),
   ].join("");
 
   return svgDoc(W, H, `<defs>${doc.defs.join("")}</defs>${body}`, {
@@ -430,63 +428,89 @@ async function stats(P: Palette, s: Stats): Promise<string> {
 /* ================================================================== */
 async function footer(P: Palette): Promise<string> {
   const doc = new Doc(P, `foot-${P.mode}`);
-  const H = 236;
+  const H = 252;
   const pad = 22;
   const gap = 12;
-  const inkW = 520;
+  const inkW = 470;
   const inkH = H - pad * 2;
   const rx = pad + inkW + gap;
   const rw = W - pad - rx;
   const rh = (inkH - gap) / 2;
 
-  const nameSize = 118;
+  const nameSize = 114;
   const probe = kubosPath(HERO.name, 0, 0, nameSize);
-  const name = kubosPath(HERO.name, pad + 34, pad + inkH - 40, nameSize);
+  const nameY = pad + inkH / 2 + 34;
+  const name = kubosPath(HERO.name, pad + 34, nameY, nameSize);
   const fit = Math.min(1, (inkW - 68) / probe.width);
 
+  const verse = paragraph(
+    doc,
+    [{ text: "“The wind blows where it wishes, and you hear the sound of it, but cannot tell where it comes from and where it goes.”" }],
+    rx + 74,
+    pad + 24,
+    rw - 74 - 16,
+    { size: 11, leading: 1.35, color: P.heading }
+  );
+
   const body = [
-    ground(doc, W, H, 121),
+    ground(doc, W, H, 121, 6, "bottom"),
     // ink tile
     sheet(doc, pad, pad, inkW, inkH, 131, { fill: P.ink, opacity: 1 }),
-    `<g transform="translate(${n(pad + 34)} ${n(pad + inkH - 40)}) scale(${n(fit, 3)}) translate(${n(-(pad + 34))} ${n(-(pad + inkH - 40))})"><path d="${name.d}" fill="${P.bg}"/></g>`,
-    text(doc, "thanks for stopping by.", pad + 34, pad + 40, { size: 14.5, weight: 500, color: P.bg, opacity: 0.72 }),
-    fold(P, [{ model: "swan", x: pad + inkW - 92, y: pad + 66, size: 120, depth: 1, dur: 38, tiltX: 0.35, frames: 20 }]),
+    `<g transform="translate(${n(pad + 34)} ${n(nameY)}) scale(${n(fit, 3)}) translate(${n(-(pad + 34))} ${n(-nameY)})"><path d="${name.d}" fill="${P.bg}"/></g>`,
+    fold(P, [{ model: "swan", x: pad + inkW - 86, y: pad + 64, size: 118, depth: 1, dur: 38, tiltX: 0.35, frames: 20 }]),
     // seal tile
     sheet(doc, rx, pad, rw, rh, 141),
-    hanko(doc, rx + 46, pad + rh / 2, 50, -6),
-    text(doc, "光 means light.", rx + 86, pad + rh / 2 - 4, { size: 17, weight: 600, color: P.heading, tracking: -0.02 }),
-    text(doc, "vancouver ⇄ tokyo", rx + 86, pad + rh / 2 + 18, { size: 13, color: P.muted }),
+    hanko(doc, rx + 40, pad + rh / 2, 46, -6),
+    verse.svg,
+    text(doc, "John 3:8", rx + 74, pad + 24 + verse.height + 2, { size: 11, weight: 500, color: P.muted }),
     // link tile
     sheet(doc, rx, pad + rh + gap, rw, rh, 151),
     text(doc, "hikaruun.com", rx + 24, pad + rh + gap + rh / 2 + 6, { size: 17, weight: 600, color: P.heading, tracking: -0.02 }),
     arrow(rx + 24 + measure("hikaruun.com", 17, 600, -0.02) + 6, pad + rh + gap + rh / 2 - 9, 14, P.accent),
     fold(P, [{ model: "pinwheel", x: rx + rw - 48, y: pad + rh + gap + rh / 2, size: 62, depth: 0.85, dur: 14, axis: "z", tiltX: 0.2, frames: 16 }]),
-    groundBorder(doc, W, H),
+    groundBorder(doc, W, H, 6, "bottom"),
   ].join("");
 
   return svgDoc(W, H, `<defs>${doc.defs.join("")}</defs>${body}`, {
-    title: "hikaru — 光 means light. hikaruun.com",
+    title: "hikaru — John 3:8 · hikaruun.com",
     style: await doc.style(),
   });
 }
 
 /* ================================================================== */
-/* paper-slip buttons                                                  */
+/* paper-slip buttons (seamless ground tiles)                          */
 /* ================================================================== */
-async function button(P: Palette, label: string, primary: boolean): Promise<string> {
+interface ButtonSpec {
+  file: string;
+  label: string;
+  primary: boolean;
+  w: number;
+  align: "left" | "center" | "right";
+  edges: GroundEdges;
+  seed: number;
+}
+
+async function buttonTile(P: Palette, spec: ButtonSpec): Promise<string> {
+  const { label, primary, w, align, edges, seed } = spec;
   const doc = new Doc(P, `btn-${P.mode}`);
-  const size = 15;
-  const h = 44;
-  const w = Math.ceil(measure(label, size, 500, -0.01) + 20 * 2 + 14 + 9);
+  const h = 62;
+  const size = 14.5;
+  const bh = 42;
+  const bw = Math.ceil(measure(label, size, 500, -0.01) + 18 * 2 + 14 + 8);
+  const bx = align === "right" ? w - bw - 8 : align === "left" ? 8 : Math.round((w - bw) / 2);
+  const by = 4;
   const fill = primary ? P.accent : P.surface;
   const ink = primary ? P.accentInk : P.ink;
+  const clip = doc.uid("btnclip");
   const body = [
-    `<rect x=".5" y=".5" width="${w - 1}" height="${h - 1}" rx="3" fill="${fill}"${primary ? "" : ` fill-opacity="${P.surfaceOpacity}"`} stroke="${primary ? P.accent : P.paperEdge}" stroke-opacity="${primary ? 0.6 : P.paperEdgeOpacity * 1.4}"/>`,
-    primary ? "" : `<g clip-path="url(#c)">${fibers(doc, 0, 0, w, h, label.length * 7, 1.4)}</g>`,
-    text(doc, label, 20, h / 2 + size * 0.35, { size, weight: 500, color: ink, tracking: -0.01 }),
-    arrow(w - 20 - 14, h / 2 - 7, 14, ink),
+    ground(doc, w, h, seed, 0, edges),
+    `<rect x="${n(bx + 0.5)}" y="${n(by + 0.5)}" width="${bw - 1}" height="${bh - 1}" rx="3" fill="${fill}"${primary ? "" : ` fill-opacity="${P.surfaceOpacity}"`} stroke="${primary ? P.accent : P.paperEdge}" stroke-opacity="${primary ? 0.6 : P.paperEdgeOpacity * 1.4}"/>`,
+    primary ? "" : `<g clip-path="url(#${clip})">${fibers(doc, bx, by, bw, bh, label.length * 7, 1.4)}</g>`,
+    text(doc, label, bx + 18, by + bh / 2 + size * 0.35, { size, weight: 500, color: ink, tracking: -0.01 }),
+    arrow(bx + bw - 18 - 14, by + bh / 2 - 7, 14, ink),
+    groundBorder(doc, w, h, 0, edges),
   ].join("");
-  return svgDoc(w, h, `<defs><clipPath id="c"><rect width="${w}" height="${h}" rx="3"/></clipPath>${doc.defs.join("")}</defs>${body}`, {
+  return svgDoc(w, h, `<defs><clipPath id="${clip}"><rect x="${n(bx)}" y="${n(by)}" width="${bw}" height="${bh}" rx="3"/></clipPath>${doc.defs.join("")}</defs>${body}`, {
     title: label,
     style: await doc.style(),
   });
@@ -494,12 +518,12 @@ async function button(P: Palette, label: string, primary: boolean): Promise<stri
 
 /* ================================================================== */
 
-const BUTTONS: [string, string, boolean][] = [
-  ["btn-linkedin", "connect on linkedin", true],
-  ["btn-site", "hikaruun.com", false],
-  ["btn-devpost", "devpost", true],
-  ["btn-github", "github", false],
-  ["btn-live", "live site", false],
+const BUTTONS: ButtonSpec[] = [
+  { file: "btn-linkedin", label: "connect on linkedin", primary: true, w: 450, align: "right", edges: "left", seed: 201 },
+  { file: "btn-site", label: "hikaruun.com", primary: false, w: 450, align: "left", edges: "right", seed: 202 },
+  { file: "btn-devpost", label: "devpost", primary: true, w: 378, align: "right", edges: "left", seed: 211 },
+  { file: "btn-github", label: "github", primary: false, w: 144, align: "center", edges: "none", seed: 212 },
+  { file: "btn-live", label: "live site", primary: false, w: 378, align: "left", edges: "right", seed: 213 },
 ];
 
 export async function build(): Promise<string[]> {
@@ -521,7 +545,7 @@ export async function build(): Promise<string[]> {
     out(`project-${P.mode}.svg`, await project(P));
     out(`stats-${P.mode}.svg`, await stats(P, s));
     out(`footer-${P.mode}.svg`, await footer(P));
-    for (const [file, label, primary] of BUTTONS) out(`${file}-${P.mode}.svg`, await button(P, label, primary));
+    for (const spec of BUTTONS) out(`${spec.file}-${P.mode}.svg`, await buttonTile(P, spec));
   }
   return written;
 }

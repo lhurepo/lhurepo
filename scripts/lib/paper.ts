@@ -3,6 +3,8 @@
  * paper-slip tags and buttons, and the vermilion 光 hanko seal.
  * Everything is vector — no raster textures — so files stay small and crisp.
  */
+import fs from "node:fs";
+import path from "node:path";
 import type { Palette } from "./theme";
 import { esc, n, rng } from "./svg";
 import { FAMILY, GlyphBook, Line, measure, Run, Weight, wrapRuns } from "./fonts";
@@ -105,34 +107,85 @@ export function toothFilter(doc: Doc): string {
   return id;
 }
 
-/** The full-bleed ground: colour, warm radial light, fibers, tooth, deckle border. */
-export function ground(doc: Doc, w: number, h: number, seed: number, radius = 6): string {
-  const P = doc.P;
-  const clip = doc.uid("clip");
-  const g1 = doc.uid("warm");
-  const g2 = doc.uid("gold");
-  const tooth = toothFilter(doc);
-  doc.def(`<clipPath id="${clip}"><rect width="${w}" height="${h}" rx="${radius}"/></clipPath>`);
-  doc.def(
-    `<radialGradient id="${g1}" cx=".2" cy=".15" r=".8"><stop offset="0" stop-color="${P.warm}" stop-opacity="${P.warmOpacity * 2.2}"/><stop offset="1" stop-color="${P.warm}" stop-opacity="0"/></radialGradient>`
-  );
-  doc.def(
-    `<radialGradient id="${g2}" cx=".85" cy=".7" r=".7"><stop offset="0" stop-color="${P.accent}" stop-opacity="${P.mode === "dark" ? 0.05 : 0.06}"/><stop offset="1" stop-color="${P.accent}" stop-opacity="0"/></radialGradient>`
-  );
-  return [
-    `<g clip-path="url(#${clip})">`,
-    `<rect width="${w}" height="${h}" fill="${P.bg}"/>`,
-    `<rect width="${w}" height="${h}" fill="url(#${g1})"/>`,
-    `<rect width="${w}" height="${h}" fill="url(#${g2})"/>`,
-    `<rect width="${w}" height="${h}" filter="url(#${tooth})"/>`,
-    fibers(doc, -20, -20, w + 40, h + 40, seed, 1.1),
-    `</g>`,
-  ].join("");
+export type GroundEdges = "all" | "top" | "middle" | "bottom" | "left" | "right" | "none";
+
+function groundClipPath(w: number, h: number, radius: number, edges: GroundEdges): string {
+  if (edges === "all" || radius <= 0) return `<rect width="${w}" height="${h}" rx="${radius}"/>`;
+  if (edges === "top") {
+    const r = radius;
+    return `<path d="M0 ${r}Q0 0 ${r} 0H${w - r}Q${w} 0 ${w} ${r}V${h}H0Z"/>`;
+  }
+  if (edges === "bottom") {
+    const r = radius;
+    return `<path d="M0 0H${w}V${h - r}Q${w} ${h} ${w - r} ${h}H${r}Q0 ${h} 0 ${h - r}Z"/>`;
+  }
+  return `<rect width="${w}" height="${h}"/>`;
 }
 
-export function groundBorder(doc: Doc, w: number, h: number, radius = 6): string {
+/** The full-bleed ground: colour, warm radial light, fibers, tooth, deckle border. */
+export function ground(
+  doc: Doc,
+  w: number,
+  h: number,
+  seed: number,
+  radius = 6,
+  edges: GroundEdges = "all"
+): string {
   const P = doc.P;
-  return `<rect x=".5" y=".5" width="${w - 1}" height="${h - 1}" rx="${radius}" stroke="${P.paperEdge}" stroke-opacity="${P.paperEdgeOpacity}"/>`;
+  const clip = doc.uid("clip");
+  const tooth = toothFilter(doc);
+  doc.def(`<clipPath id="${clip}">${groundClipPath(w, h, radius, edges)}</clipPath>`);
+  const parts = [
+    `<g clip-path="url(#${clip})">`,
+    `<rect width="${w}" height="${h}" fill="${P.bg}"/>`,
+  ];
+  if (edges === "all") {
+    const g1 = doc.uid("warm");
+    const g2 = doc.uid("gold");
+    doc.def(
+      `<radialGradient id="${g1}" cx=".2" cy=".15" r=".8"><stop offset="0" stop-color="${P.warm}" stop-opacity="${P.warmOpacity * 2.2}"/><stop offset="1" stop-color="${P.warm}" stop-opacity="0"/></radialGradient>`
+    );
+    doc.def(
+      `<radialGradient id="${g2}" cx=".85" cy=".7" r=".7"><stop offset="0" stop-color="${P.accent}" stop-opacity="${P.mode === "dark" ? 0.05 : 0.06}"/><stop offset="1" stop-color="${P.accent}" stop-opacity="0"/></radialGradient>`
+    );
+    parts.push(`<rect width="${w}" height="${h}" fill="url(#${g1})"/>`, `<rect width="${w}" height="${h}" fill="url(#${g2})"/>`);
+  }
+  parts.push(
+    `<rect width="${w}" height="${h}" filter="url(#${tooth})"/>`,
+    fibers(doc, -20, -20, w + 40, h + 40, seed, 1.1),
+    `</g>`
+  );
+  return parts.join("");
+}
+
+export function groundBorder(
+  doc: Doc,
+  w: number,
+  h: number,
+  radius = 6,
+  edges: GroundEdges = "all"
+): string {
+  const P = doc.P;
+  const stroke = `stroke="${P.paperEdge}" stroke-opacity="${P.paperEdgeOpacity}"`;
+  if (edges === "all") {
+    return `<rect x=".5" y=".5" width="${w - 1}" height="${h - 1}" rx="${radius}" ${stroke}/>`;
+  }
+  if (edges === "none") return "";
+  if (edges === "top") {
+    const r = radius;
+    return `<path d="M.5 ${h}V${r}Q.5 .5 ${r} .5H${w - r}Q${w - 0.5} .5 ${w - 0.5} ${r}V${h}" ${stroke}/>`;
+  }
+  if (edges === "bottom") {
+    const r = radius;
+    return `<path d="M.5 0V${h - r}Q.5 ${h - 0.5} ${r} ${h - 0.5}H${w - r}Q${w - 0.5} ${h - 0.5} ${w - 0.5} ${h - r}V0" ${stroke}/>`;
+  }
+  if (edges === "left") {
+    return `<line x1=".5" y1="0" x2=".5" y2="${h}" ${stroke}/>`;
+  }
+  if (edges === "right") {
+    return `<line x1="${w - 0.5}" y1="0" x2="${w - 0.5}" y2="${h}" ${stroke}/>`;
+  }
+  return `<line x1=".5" y1="0" x2=".5" y2="${h}" ${stroke}/><line x1="${w - 0.5}" y1="0" x2="${w - 0.5}" y2="${h}" ${stroke}/>`;
 }
 
 /* ------------------------------------------------------------------ */
@@ -283,21 +336,26 @@ export function arrow(x: number, y: number, s: number, color: string): string {
 /* 光 hanko                                                            */
 /* ------------------------------------------------------------------ */
 
+let cachedHankoPath: string | null = null;
+function hankoPath(): string {
+  if (cachedHankoPath) return cachedHankoPath;
+  const svg = fs.readFileSync(path.resolve(__dirname, "../../assets/hikaru_seal_svg.svg"), "utf8");
+  const m = svg.match(/\bd="([^"]+)"/);
+  if (!m) throw new Error("Could not extract path from assets/hikaru_seal_svg.svg");
+  cachedHankoPath = m[1];
+  return cachedHankoPath;
+}
+
 /**
- * The 光 seal (public/hikaru_hanko.jpg), redrawn as vector strokes on its
- * original 600px grid, with a displacement filter for the pressed-ink bite.
+ * The 光 seal (assets/hikaru_seal_svg.svg), rendered as a filled vector path
+ * with a displacement filter for the pressed-ink bite.
  */
 export function hanko(doc: Doc, cx: number, cy: number, size: number, rotate = -6, color?: string): string {
   const id = doc.uid("ink");
   doc.def(
-    `<filter id="${id}" x="-5%" y="-5%" width="110%" height="110%"><feTurbulence type="fractalNoise" baseFrequency="1.1" numOctaves="2" seed="3"/><feDisplacementMap in="SourceGraphic" scale="${n(Math.max(1.2, size / 60), 2)}"/></filter>`
+    `<filter id="${id}" x="-5%" y="-5%" width="110%" height="110%"><feTurbulence type="fractalNoise" baseFrequency="1.1" numOctaves="2" seed="3"/><feDisplacementMap in="SourceGraphic" scale="${n(Math.max(0.8, size / 75), 2)}"/></filter>`
   );
-  const k = size / 400;
+  const k = size / 926;
   const c = color ?? doc.P.hanko;
-  return [
-    `<g transform="translate(${n(cx)} ${n(cy)}) rotate(${rotate}) scale(${n(k, 4)}) translate(-300 -300)" filter="url(#${id})" stroke="${c}" stroke-width="13" stroke-linecap="square" fill="none">`,
-    `<circle cx="300" cy="300" r="196"/>`,
-    `<path d="M300 106V265M106 265H494M180 146 300 265M420 146 300 265M300 265 150 417M312 265V420H452V302"/>`,
-    `</g>`,
-  ].join("");
+  return `<g transform="translate(${n(cx)} ${n(cy)}) rotate(${rotate}) scale(${n(k, 4)}) translate(-479.5 -478)" filter="url(#${id})"><path d="${hankoPath()}" fill="${c}" fill-rule="evenodd"/></g>`;
 }
