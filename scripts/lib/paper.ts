@@ -238,6 +238,7 @@ export interface TextOpts {
   tracking?: number; // em
   anchor?: "start" | "middle" | "end";
   opacity?: number;
+  italic?: boolean;
 }
 
 /** Single-line text; registers glyphs for the subset. */
@@ -247,7 +248,8 @@ export function text(doc: Doc, s: string, x: number, y: number, o: TextOpts): st
   const ls = o.tracking ? ` letter-spacing="${n(o.tracking * o.size, 2)}"` : "";
   const anchor = o.anchor && o.anchor !== "start" ? ` text-anchor="${o.anchor}"` : "";
   const op = o.opacity !== undefined ? ` fill-opacity="${o.opacity}"` : "";
-  return `<text x="${n(x)}" y="${n(y)}" font-size="${o.size}" font-weight="${w}" fill="${o.color ?? doc.P.ink}"${ls}${anchor}${op}>${esc(s)}</text>`;
+  const fs = o.italic ? ` font-style="italic"` : "";
+  return `<text x="${n(x)}" y="${n(y)}" font-size="${o.size}" font-weight="${w}" fill="${o.color ?? doc.P.ink}"${ls}${anchor}${op}${fs}>${esc(s)}</text>`;
 }
 
 /** Wrapped, mixed-weight paragraph. Returns markup and consumed height. */
@@ -262,7 +264,8 @@ export function paragraph(
   const lines = wrapRuns(runs, maxWidth, o.size, o.tracking ?? 0);
   const lh = o.size * (o.leading ?? 1.55);
   const ls = o.tracking ? ` letter-spacing="${n(o.tracking * o.size, 2)}"` : "";
-  let svg = `<text font-size="${o.size}" font-weight="${o.weight ?? 400}" fill="${o.color ?? doc.P.ink}"${ls}>`;
+  const fs = o.italic ? ` font-style="italic"` : "";
+  let svg = `<text font-size="${o.size}" font-weight="${o.weight ?? 400}" fill="${o.color ?? doc.P.ink}"${ls}${fs}>`;
   lines.forEach((line, i) => {
     const lx = o.align === "center" ? x + (maxWidth - line.width) / 2 : x;
     svg += `<tspan x="${n(lx)}" y="${n(y + i * lh)}">`;

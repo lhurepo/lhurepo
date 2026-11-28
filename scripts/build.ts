@@ -443,14 +443,30 @@ async function footer(P: Palette): Promise<string> {
   const name = kubosPath(HERO.name, pad + 34, nameY, nameSize);
   const fit = Math.min(1, (inkW - 68) / probe.width);
 
-  const verse = paragraph(
-    doc,
-    [{ text: "“The wind blows where it wishes, and you hear the sound of it, but cannot tell where it comes from and where it goes.”" }],
-    rx + 74,
-    pad + 24,
-    rw - 74 - 16,
-    { size: 11, leading: 1.35, color: P.heading }
-  );
+  const verseX = rx + 64;
+  const verseW = rw - 64 - 14;
+  const verseLeading = 1.42;
+  const verseSize = 10.6;
+  const verseText = "“The wind blows where it wishes, and you hear the sound of it, but cannot tell where it comes from and where it goes.”";
+  const verseProbe = paragraph(doc, [{ text: verseText }], verseX, 0, verseW, {
+    size: verseSize,
+    leading: verseLeading,
+    align: "center",
+    color: P.heading,
+  });
+  const refGap = 5;
+  const refSize = 10.5;
+  const totalTextH = verseProbe.height + refGap + refSize;
+  const verseTop = pad + (rh - totalTextH) / 2 + verseSize * 0.85;
+  const verse = paragraph(doc, [{ text: verseText }], verseX, verseTop, verseW, {
+    size: verseSize,
+    leading: verseLeading,
+    align: "center",
+    color: P.heading,
+  });
+  const vcx = verseX + verseW / 2;
+  const vcy = verseTop + verse.height / 2 - verseSize * 0.3;
+  const italicVerse = `<g transform="translate(${n(vcx)} ${n(vcy)}) skewX(-9) translate(${n(-vcx)} ${n(-vcy)})">${verse.svg}</g>`;
 
   const body = [
     ground(doc, W, H, 121, 6, "bottom"),
@@ -460,9 +476,14 @@ async function footer(P: Palette): Promise<string> {
     fold(P, [{ model: "swan", x: pad + inkW - 86, y: pad + 64, size: 118, depth: 1, dur: 38, tiltX: 0.35, frames: 20 }]),
     // seal tile
     sheet(doc, rx, pad, rw, rh, 141),
-    hanko(doc, rx + 40, pad + rh / 2, 46, -6),
-    verse.svg,
-    text(doc, "John 3:8", rx + 74, pad + 24 + verse.height + 2, { size: 11, weight: 500, color: P.muted }),
+    hanko(doc, rx + 35, pad + rh / 2, 42, -6),
+    italicVerse,
+    text(doc, "— John 3:8", vcx, verseTop + verse.height + refGap - 2, {
+      size: refSize,
+      weight: 500,
+      color: P.muted,
+      anchor: "middle",
+    }),
     // link tile
     sheet(doc, rx, pad + rh + gap, rw, rh, 151),
     text(doc, "hikaruun.com", rx + 24, pad + rh + gap + rh / 2 + 6, { size: 17, weight: 600, color: P.heading, tracking: -0.02 }),
